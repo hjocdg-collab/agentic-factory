@@ -1,0 +1,52 @@
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tasks     Task[]
+}
+
+model Task {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus
+  priority    TaskPriority
+  dueDate     DateTime?
+  userId      String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        User        @relation(fields: [userId], references: [id])
+  categories   TaskCategory[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tasks     TaskCategory[]
+}
+
+model TaskCategory {
+  taskId     String
+  categoryId String
+  task       Task     @relation(fields: [taskId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+  @@id([taskId, categoryId])
+}
+
+enum TaskStatus {
+  todo
+  inProgress
+  completed
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+}
