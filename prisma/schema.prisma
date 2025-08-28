@@ -8,38 +8,45 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid()) @db.Uuid
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  tasks     Task[]
+  tasks     Task[]   @relation("UserTasks")
+  categories Category[] @relation("UserCategories")
 }
 
 model Task {
-  id          String       @id @default(cuid())
+  id          String   @id @default(uuid()) @db.Uuid
   title       String
   description String?
-  status      TaskStatus   @default(TODO)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  status      TaskStatus
+  priority    TaskPriority
   userId      String
-  user        User         @relation(fields: [userId], references: [id])
-  categories   TaskCategory[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation("UserTasks", fields: [userId], references: [id])
 }
 
 model Category {
-  id        String        @id @default(cuid())
-  name      String        @unique
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  tasks     TaskCategory[]
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  color     String?
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation("UserCategories", fields: [userId], references: [id])
 }
 
-model TaskCategory {
-  taskId    String
-  categoryId String
-  task      Task      @relation(fields: [taskId], references: [id])
-  category  Category  @relation(fields: [categoryId], references: [id])
-  @@id([taskId, categoryId])
+enum TaskStatus {
+  todo
+  inProgress
+  done
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
 }
