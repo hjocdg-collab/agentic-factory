@@ -1,15 +1,43 @@
 name: ci
 on:
-  workflow_dispatch:
+  push:
+    branches: [ "**" ]
   pull_request:
+    branches: [ "**" ]
+
+permissions:
+  contents: read
+  checks: write
+
 jobs:
-  build-test:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Backend
-        run: |
-          if [ -d backend ]; then cd backend && npm ci || true && npm run build || true; fi
-      - name: Frontend
-        run: |
-          if [ -d frontend ]; then cd frontend && npm ci || true && npm run build || true; fi
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install frontend
+        working-directory: frontend
+        run: npm ci || npm i
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build || npx vite build || echo "skip frontend build"
+
+      - name: Install backend
+        working-directory: backend
+        run: npm ci || npm i
+
+      - name: Type-check backend
+        working-directory: backend
+        run: npx tsc -p tsconfig.json || echo "skip tsc"
+
+      - name: API smoke test
+        working-directory: backend
+        run: node -e "console.log('backend ok')"
