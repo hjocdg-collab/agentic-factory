@@ -1,28 +1,20 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 model User {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(cuid())
   email     String   @unique
   password  String
+  role      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   tasks     Task[]   @relation("UserTasks")
-  categories Category[] @relation("UserCategories")
 }
 
 model Task {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          String   @id @default(cuid())
   title       String
   description String?
-  status      TaskStatus
-  priority    TaskPriority
+  status      String
+  priority    String
+  dueDate     DateTime?
   userId      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -30,23 +22,18 @@ model Task {
 }
 
 model Category {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
+  id        String   @id @default(cuid())
+  name      String   @unique
   color     String?
-  userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation("UserCategories", fields: [userId], references: [id])
+  tasks     Task[]   @relation("TaskCategories")
 }
 
-enum TaskStatus {
-  todo
-  inProgress
-  done
-}
-
-enum TaskPriority {
-  low
-  medium
-  high
+model TaskCategory {
+  taskId     String
+  categoryId String
+  task       Task     @relation(fields: [taskId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+  @@id([taskId, categoryId])
 }
