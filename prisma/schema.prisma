@@ -1,3 +1,12 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -19,21 +28,4 @@ model Task {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   user        User     @relation("UserTasks", fields: [userId], references: [id])
-}
-
-model Category {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  color     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tasks     Task[]   @relation("TaskCategories")
-}
-
-model TaskCategory {
-  taskId     String
-  categoryId String
-  task       Task     @relation(fields: [taskId], references: [id])
-  category   Category @relation(fields: [categoryId], references: [id])
-  @@id([taskId, categoryId])
 }
