@@ -3,9 +3,9 @@ services:
   postgres:
     image: postgres:15
     environment:
-      POSTGRES_USER: taskmanager-jwt_user
-      POSTGRES_PASSWORD: taskmanager-jwt_password
-      POSTGRES_DB: taskmanager-jwt_db
+      POSTGRES_USER: taskmanager_user
+      POSTGRES_PASSWORD: taskmanager_password
+      POSTGRES_DB: taskmanager_db
     ports:
       - "5432:5432"
     volumes:
